@@ -1,70 +1,103 @@
 # Flappy Bird 8086
 
-A Flappy Bird clone written in 8086 Assembly for DOS text mode.
+A text-mode Flappy Bird clone written in **8086 Assembly** for DOS `.COM` binaries.
 
-## Overview
+The game runs in `80x25` text mode by drawing directly to VGA text memory (`0xB800`) and uses hardware interrupts for responsive input and timing.
 
-This project recreates Flappy Bird mechanics in low-level x86 Assembly:
+## Features
 
-- Real-time bird movement and gravity
-- Procedurally cycling pillars with gaps
-- Collision detection (pipes + ground)
-- Score tracking and end screen
-- Start, instructions, pause, and game-over UI
-- Keyboard and timer interrupt handling
-- PC speaker music task running alongside gameplay
+- Classic Flappy Bird gameplay: flap, gravity, moving pillars, collision, score
+- Text-mode rendering with direct writes to video memory
+- Custom keyboard ISR hook (`INT 09h`) for controls
+- Custom timer ISR hook (`INT 08h`) for motion/tick updates
+- In-game UI screens: start, instructions, pause, game over
+- PC speaker music routine integrated with gameplay
+- Two playable builds:
+  - `phas5.com` (base build)
+  - `phas5vsync.com` (vertical-retrace synced, less flicker)
 
 ## Controls
 
-- `Enter` - Start from title screen
-- `Any key` - Continue from instructions screen
-- `Up Arrow` - Flap / move bird up
-- `Esc` - Pause game
+- `Enter` - Start game from title screen
+- `Any key` - Continue after instructions screen
+- `Up Arrow` - Flap
+- `Esc` - Pause
 - `n` - Resume from pause
 - `y` - Quit from pause
 
-## Project Files
+## Requirements
 
-- `phas5.asm` - Main game source (entry point)
-- `phas5vsync.asm` - Flicker-free variant with vertical retrace sync
-- `UI_5.asm` - Start/instructions/pause/game-over UI routines
-- `mus.asm` - Music routine
-- `prng_1.asm` - Random number generation helper
-- `phas5.com` - Prebuilt DOS executable
-- `phas5vsync.com` - Prebuilt flicker-free executable
-- `dosbox.conf` - DOSBox auto-run config for `phas5.com`
-- `dosboxvsync.conf` - DOSBox auto-run config for `phas5vsync.com`
+- [NASM](https://www.nasm.us/)
+- [DOSBox](https://www.dosbox.com/)
 
 ## Build
 
-Requirements:
-
-- `nasm` (verified with NASM 3.01)
-
-Build command:
+From the project root:
 
 ```bash
 nasm -f bin phas5.asm -o phas5.com
+nasm -f bin phas5vsync.asm -o phas5vsync.com
 ```
 
 ## Run
 
-### Option 1: Run prebuilt binary with DOSBox config
+### Option 1: Use included DOSBox configs
+
+Base build:
 
 ```bash
 dosbox -conf dosbox.conf
 ```
 
-### Option 2: Manual DOSBox run
+VSync build:
 
-1. Start DOSBox.
-2. Mount this project folder as a DOS drive:
-   `mount c "<path-to-this-project>"`
-3. Run:
-   `c:`
-   `phas5.com`
+```bash
+dosbox -conf dosboxvsync.conf
+```
 
-## Credits
+### Option 2: Run manually in DOSBox
+
+```text
+mount c "<project-path>"
+c:
+phas5.com
+```
+
+For the synced build, run `phas5vsync.com` instead.
+
+## Project Structure
+
+- `phas5.asm` - Main game source (base)
+- `phas5vsync.asm` - Main game source with vertical retrace sync (`wait_vsync`)
+- `UI_5.asm` - UI buffers and routines (start, instructions, pause, end)
+- `mus.asm` - Music routine
+- `prng_1.asm` - Randomization helper for gameplay elements
+- `dosbox.conf` - DOSBox autoexec for `phas5.com`
+- `dosboxvsync.conf` - DOSBox autoexec for `phas5vsync.com`
+- `phas5.com` - Prebuilt base executable
+- `phas5vsync.com` - Prebuilt synced executable
+
+## Technical Overview
+
+- Program format: `.COM` (`[org 0x0100]`)
+- Rendering target: VGA text memory segment `0xB800`
+- Runtime behavior:
+  - Saves existing keyboard/timer vectors
+  - Hooks custom ISRs for gameplay
+  - Restores original vectors on exit
+- Core game systems:
+  - Bird movement and flap timing
+  - Pillar scrolling and randomized gaps
+  - Collision detection against obstacles/ground
+  - Score increment + on-screen score rendering
+
+## Notes
+
+- Designed for DOS/DOSBox only
+- Text-mode visuals are intentionally character-cell based
+- Timing and feel can vary slightly with emulator settings
+
+## Authors
 
 - Bilal Kashif (`23L-0757`)
 - Mohammad Hamza Iqbal (`23L-0848`)
