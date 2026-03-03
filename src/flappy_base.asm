@@ -54,8 +54,8 @@ current:	dw 0 ; index of current task
 ;delay
 
 ;this file includes the user interfaces for start screen instructions screen and end screen
- %include "UI_5.asm"
- %include "prng_1.asm"
+ %include "ui.asm"
+ %include "prng.asm"
  ;mus.asm included at end
 
 start:
@@ -1146,4 +1146,4 @@ normal_range:
 ;this includes the play_animation, print_ground_static,print_start_screen,and hooked interrupts
 ;print pillars, rotate left,check_collision assume that ground takes last 3 rows
 ;
- %include"mus.asm"
+ %include"music.asm"

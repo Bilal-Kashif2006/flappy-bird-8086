@@ -54,8 +54,8 @@ current:	dw 0 ; index of current task
 ;delay
 
 ;this file includes the user interfaces for start screen instructions screen and end screen
- %include "UI_5.asm"
- %include "prng_1.asm"
+ %include "ui.asm"
+ %include "prng.asm"
  ;mus.asm included at end
 
 start:
@@ -213,22 +213,32 @@ ret 2
 ; Wait for vertical retrace to reduce flicker
 wait_vsync:
 	push 	ax
+	push 	cx
 	push 	dx
 	mov 	dx,0x3DA	; VGA status port
 	
 	; Wait for end of current retrace (if in one)
+	mov 	cx,0xFFFF
 	.wait_end:
 	in 		al,dx
 	test 	al,0x08		; bit 3 = vertical retrace
-	jnz 	.wait_end
+	jz 		.wait_start_setup
+	loop 	.wait_end
+	jmp 	.done
 	
 	; Wait for start of next retrace
+	.wait_start_setup:
+	mov 	cx,0xFFFF
 	.wait_start:
 	in 		al,dx
 	test 	al,0x08
-	jz 		.wait_start
+	jnz 	.done
+	loop 	.wait_start
+
+	.done:
 	
 	pop 	dx
+	pop 	cx
 	pop 	ax
 	ret
 ;===========================================
@@ -1169,4 +1179,4 @@ normal_range:
 ;this includes the play_animation, print_ground_static,print_start_screen,and hooked interrupts
 ;print pillars, rotate left,check_collision assume that ground takes last 3 rows
 ;
- %include"mus.asm"
+ %include"music.asm"
